@@ -1,0 +1,25 @@
+{
+  "name": "resolve-latest",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest --watchAll",
+    "build": "rm -rf lib/* && babel ./src/index.js --out-file ./lib/index.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-core": "^6.26.0",
+    "babel-eslint": "^8.2.1",
+    "babel-loader": "^7.1.2",
+    "babel-preset-env": "^1.6.1",
+    "eslint": "^4.16.0",
+    "eslint-config-airbnb-base": "^12.1.0",
+    "eslint-plugin-import": "^2.8.0",
+    "eslint-plugin-jest": "^21.7.0",
+    "jest": "^22.1.4",
+    "jest-cli": "^22.1.4"
+  }
+}
