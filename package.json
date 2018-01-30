@@ -1,11 +1,14 @@
 {
   "name": "resolve-latest",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "",
   "main": "./src/index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jEnbuska/resolve-latest"
+  },
   "scripts": {
-    "test": "jest --watchAll",
-    "build": "webpack"
+    "test": "jest --watchAll"
   },
   "author": "",
   "license": "ISC",
@@ -21,7 +24,6 @@
     "eslint-plugin-import": "^2.8.0",
     "eslint-plugin-jest": "^21.7.0",
     "jest": "^22.1.4",
-    "jest-cli": "^22.1.4",
-    "webpack": "^3.10.0"
+    "jest-cli": "^22.1.4"
   }
 }

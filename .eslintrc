@@ -9,6 +9,7 @@
   },
   "rules": {
     "no-case-declarations": "warn",
+    "no-var": "off",
     "import/no-named-as-default":"warn",
     "consistent-return":"warn",
     "no-nested-ternary": "warn",

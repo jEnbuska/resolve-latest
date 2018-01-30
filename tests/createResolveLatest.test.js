@@ -1,4 +1,4 @@
-const createResolveLatest = require('../src');
+const createResolveLatest = require('resolve-latest');
 
 const sleep = time => new Promise(res => setTimeout(res, time));
 
