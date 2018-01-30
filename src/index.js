@@ -2,7 +2,7 @@
 /* eslint-disable no-param-reassign */
 const neverResolving = new Promise((() => {}));
 
-export default function createResolveLast() {
+module.exports = function createResolveLast() {
     let lastTimeout = 0;
     let tasks = 0;
     let previousDistinction;

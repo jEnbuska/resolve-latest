@@ -1,4 +1,4 @@
-const createResolveLatest = require('../src/index').default;
+const createResolveLatest = require('../src');
 
 const sleep = time => new Promise(res => setTimeout(res, time));
 
@@ -63,7 +63,7 @@ describe('createResolveLatest.test', () => {
         expect(cancelled).toEqual([0, 1, 3]);
     });
 
-    test.only('misc return variables', async () => {
+    test('misc return variables', async () => {
         const debounce = createResolveLatest();
         const cancelledCalls = [];
         let stillTrue = true;
