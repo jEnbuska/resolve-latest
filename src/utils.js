@@ -19,47 +19,37 @@ function getGarbageCollectionTimeout(gcTimeout) {
     return gcTimeout;
 }
 
-function validateLatestByKeys(keys) {
-    for (let i = 0; i < keys.length; i++) {
-        if (typeof keys[i] === 'symbol') {
-            throw new Error('resolve-latest createResolveLatest cannot handle Symbols as {by: [/*only numbers strings, maybe objects*/]} parameters');
-        }
-    }
-}
-
-
+// Strips all branches that are not in use anymore.
+// Branch is not in use anymore if its furthest most children have no RESOLVER attached to them
 function gc(branch) {
     if (branch[RESOLVER]) { return false; }
     const keys = Object.keys(branch);
     let removed = 0;
     for (let i = 0; i < keys.length; i++) {
         const k = keys[i];
-        if (branch[k] && !branch[k][RESOLVER]) {
+        if (branch[k]) {
             if (gc(branch[k])) {
                 delete branch[k];
                 removed++;
             }
         }
     }
-    if (removed === keys.length) {
-        return true;
-    }
-    return false;
+    return removed === keys.length;
 }
+
 function createInvalidTargetErrorHandler(acceptedKeys) {
     return function throwInvalidLatestByParameterError(target) {
         let example;
-        try {
-            example = JSON.stringify([...acceptedKeys].reduce((acc, k, i) => ({...acc, [k]: `val-${i}`})));
-            example = `Please use resolveLatestBy, by calling it with something like so: resolveLatestBy({target: ${example}})`;
-        } catch (e) { example = ''; }
         let instead;
         try {
-            instead = `but instead got ${target ? `[${Object.keys(target).join(',')}]` : target}`;
+            instead = `${'\n'}but instead got ${target ? `[${Object.keys(target).join(', ')}]` : target}`;
         } catch (e) { instead = ''; }
-        throw new Error(`Expected resolveLatestBy parameter to include keys [${acceptedKeys.join(', ')}], 
-            ${instead}
-            ${example}`);
+        try {
+            example = JSON.stringify(acceptedKeys.reduce((acc, k, i) => ({...acc, [k]: ` val-${i}`}), {}));
+            example = `${'\n'}Please use resolveLatestBy, by calling it with something like so: resolveLatestBy({target: ${example}})`;
+        } catch (e) { example = ''; }
+
+        throw new Error(`Expected resolveLatestBy parameter to include keys [${acceptedKeys.join(', ')}], ${instead}, ${example}`);
     };
 }
 
@@ -69,5 +59,4 @@ module.exports = {
     createInvalidTargetErrorHandler,
     getGarbageCollectionTimeout,
     gc,
-    validateLatestByKeys
 };

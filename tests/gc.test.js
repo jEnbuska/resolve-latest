@@ -1,6 +1,4 @@
-const {gc, GC_TIMEOUT, RESOLVER} = require('../src/utils');
-
-const sleep = time => new Promise(res => setTimeout(res, time));
+const {gc, RESOLVER} = require('../src/utils');
 
 describe('gc', () => {
     test('gc should clear un-used resolvers', async () => {
