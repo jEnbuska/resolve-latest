@@ -1,4 +1,4 @@
-const createResolveLatest = require('../dist');
+const createResolveLatest = require('../src');
 
 const sleep = time => new Promise(res => setTimeout(res, time));
 const apply = ({delay, create}) => sleep(delay).then(create);

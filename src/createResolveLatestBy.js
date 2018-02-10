@@ -39,7 +39,7 @@ module.exports = function createResolveLatestBy(params = {}) {
         } catch (e) {}
         throw new Error(`Expected resolveLatestBy latestBy parameter to include keys [${by.join(', ')}], but instead got [${Object.keys(latestBy).join(',')}]\n${example}`);
     }
-    return function resolveLatestBy({debounce, filter, onCancel, target}) {
+    return function resolveLatestBy({debounce, proceedWhile, onCancel, target}) {
         let current = resolvers;
         if (!target) {
             throwInvalidLatestByParameterError({});
@@ -63,12 +63,12 @@ module.exports = function createResolveLatestBy(params = {}) {
         if (current[value]) {
             clearTimeout(current[value].gc);
             current[value].gc = setTimeout(() => delete current[value], gcTimeout);
-            return current[value].resolver({debounce, filter, onCancel});
+            return current[value].resolver({debounce, proceedWhile, onCancel});
         }
         current[value] = {
             gc: setTimeout(() => { delete current[value]; }, gcTimeout),
             resolver: createResolveLatestSingle()
         };
-        return current[value].resolver({debounce, filter, onCancel});
+        return current[value].resolver({debounce, proceedWhile, onCancel});
     };
 };
