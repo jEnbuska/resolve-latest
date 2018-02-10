@@ -4,7 +4,8 @@ module.exports = function singleCreateResolveLatest() {
     let lastTimeout = 0;
     let tasksCount = 0;
     let prevOnCancel;
-    return function resolveLatest({debounce = 0, proceedWhile, onCancel}) {
+    return function resolveLatest({debounce = 0, proceedWhile, onCancel, ...rest}) {
+        if (Object.keys(rest).length) { throw new Error(`resolveLatest got unrecognized parameters ${Object.keys(rest).join(', ')}`); }
         if (proceedWhile && !proceedWhile()) {
             return neverResolving;
         }
