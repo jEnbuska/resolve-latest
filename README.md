@@ -29,10 +29,10 @@ import {getActiveScene}  from './App'
 const resolveLatestMouseOver = createResolveLatest();
 
 async function onMouseOverProduct(productId, onResult){
-    // if proceedWhile initially returns false, it will not executed any further and it will not canceled the previous task
+    // if proceedWhile initially returns false, it will not cancel the previous task 
     const {resolver} = await resolveLatestMouseOver({
-            proceedWhile: () => getActiveScene() === 'productList'
-        })
+        proceedWhile: () => getActiveScene() === 'productList'
+    })
     // if proceedWhile returns false at any point, the following next lines will not get executed
     const result = await resolver(Api.get(`/products/info/${productId}`));
     // gets resolved if 'proceedWhile' still return true, and no other calls have passed the proceedWhile until now 
@@ -45,19 +45,19 @@ async function onMouseOverProduct(productId, onResult){
 ```
 import createResolveLatest from 'resolve-latest'
 
-const resolveDistinctFirst = createResolveLatest({
-            by: ['row','column'], 
-            gcTimeout: 5000
-    }); 
+const resolveColumnUpdate = createResolveLatest({
+    by: ['row','column'], 
+    gcTimeout: 5000
+}); 
 // gcTimeout default value is 6000(ms)
 
-// if function is sequentially called with same row and column
+//if function is called with same row and column
 //the previous ['row', 'column'] tasks will get cancelled
 async function onUpdateGrid(row, column,  value, updateColumnErrorStatus){
-    const {resolver} = await resolveDistinctFirst({
-            target: {row, column}, 
-            debounce: 450
-        }); 
+    const {resolver} = await resolveColumnUpdate({
+        target: {row, column}, 
+        debounce: 450
+    }); 
     // target must be spesified and it must be an object that has both 'row' and 'column' spesified
     const result = await resolver(Api.put(`/products/${row}`, {column, value));
     const errors = await resolver(result.json());
