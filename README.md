@@ -1,4 +1,4 @@
-## resolve-latest is a library for managing timing and cancellation of async operations
+## resolve-latest is a small library for managing timing and cancellation of async operations
 
 ##### no external dependencies
 
