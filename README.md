@@ -10,11 +10,11 @@ import createResolveLatest from 'resolve-latest'
 
 const debounceGetDetails = createResolveLatest();
 
-// debounce and resolve only last one
+// debounce and resolve only latest one
 async function onMouseOverProduct(productId, onResult){
     const {resolver} = await debounceGetDetails({debounce: 250}) 
-    // waits until no other calls are made in 250ms and then resolves the last one
-    const result = await resolver(Api.get('/products/' + productId));
+    // waits until no other calls are made in 250ms and then resolves the latest one
+    const result = await resolver(Api.get(`/products/${productId}`));
     // gets resolved if onMouseOverProduct has not been re-called
     const productDetails = await resolver(result.json());
     onResult(productDetails);    
@@ -26,11 +26,13 @@ async function onMouseOverProduct(productId, onResult){
 import createResolveLatest from 'resolve-latest'
 import {getActiveScene}  from './App'
 
-const resolvePremiums = createResolveLatest();
+const resolveLatestMouseOver = createResolveLatest();
 
-// if proceedWhile initially returns false, it will not executed any further and it will not canceled the previous task
 async function onMouseOverProduct(productId, onResult){
-    const {resolver} = await resolvePremiums({proceedWhile: () => getActiveScene() === 'productList'})
+    // if proceedWhile initially returns false, it will not executed any further and it will not canceled the previous task
+    const {resolver} = await resolveLatestMouseOver({
+            proceedWhile: () => getActiveScene() === 'productList'
+        })
     // if proceedWhile returns false at any point, the following next lines will not get executed
     const result = await resolver(Api.get(`/products/info/${productId}`));
     // gets resolved if 'proceedWhile' still return true, and no other calls have passed the proceedWhile until now 
@@ -43,20 +45,27 @@ async function onMouseOverProduct(productId, onResult){
 ```
 import createResolveLatest from 'resolve-latest'
 
-const resolveDistinctFirst = createResolveLatest({by: ['row','column'], gcTimeout: 5000); // gcTimeout default value is 6000(ms)
+const resolveDistinctFirst = createResolveLatest({
+            by: ['row','column'], 
+            gcTimeout: 5000
+    }); 
+// gcTimeout default value is 6000(ms)
 
-/*gcTimeouts defines the duration for how long one ['row','column'] resolver will be remembered until it is deleted from memory
-If the resolver is re-used before gcTimeout runs out, the counter will be reset*/
-
-// if function is sequentially called with same row and column the previous ['row', 'column'] tasks will get cancelled
+// if function is sequentially called with same row and column
+//the previous ['row', 'column'] tasks will get cancelled
 async function onUpdateGrid(row, column,  value, updateColumnErrorStatus){
-    const {resolver} = await resolveDistinctFirst({target: {row, column}, debounce: 450}); 
+    const {resolver} = await resolveDistinctFirst({
+            target: {row, column}, 
+            debounce: 450
+        }); 
     // target must be spesified and it must be an object that has both 'row' and 'column' spesified
     const result = await resolver(Api.put(`/products/${row}`, {column, value));
     const errors = await resolver(result.json());
     onColumnValidateErrors(errors);
 }
 ```
+###### gcTimeouts defines the duration for how long one ['row','column'] resolver will be remembered until it is deleted from memory
+###### If the resolver is re-used before gcTimeout fulfills, the counter will be reset
 
 #### On cancel: 
 ```
