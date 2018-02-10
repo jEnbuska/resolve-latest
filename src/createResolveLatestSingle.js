@@ -6,10 +6,8 @@ module.exports = function singleCreateResolveLatest() {
     let prevOnCancel;
     return function resolveLatest(params) {
         const {debounce = 0, proceedWhile, onCancel, ...rest} = params || {};
-        if (Object.keys(rest).length) { throw new Error(`resolveLatest got unrecognized parameters ${Object.keys(rest).join(', ')}`); }
-        if (proceedWhile && !proceedWhile()) {
-            return neverResolving;
-        }
+        if (Object.keys(rest).length) throw new Error(`resolveLatest got unrecognized parameters ${Object.keys(rest).join(', ')}`);
+        else if (proceedWhile && !proceedWhile()) return neverResolving;
         let active = true;
         const taskOrd = tasksCount + 1;
         function cancelled() {
