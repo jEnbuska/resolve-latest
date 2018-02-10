@@ -9,6 +9,4 @@ wallaby.js
 yarn.lock
 .yarnclean
 package-lock.json
-yarn.lock
 README.md
-webpack.config.js

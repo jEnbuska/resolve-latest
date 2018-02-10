@@ -1,25 +1,66 @@
+## resolve-latest is a library for managing timing and cancellation of async operations
+
+##### no external dependencies
+
 ## Examples:
 
-#### debounce: 
+#### Simple debounce: 
 ```
 import createResolveLatest from 'resolve-latest'
 
 const debounceGetDetails = createResolveLatest();
 
-// debounce and resolve only last
+// debounce and resolve only last one
 async function onMouseOverProduct(productId, onResult){
     const {resolver} = await debounceGetDetails({debounce: 250}) 
     // waits until no other calls are made in 250ms and then resolves the last one
     const result = await resolver(Api.get('/products/' + productId));
-    // gets resolved if onMouseOverProduct has not been recalled yet
+    // gets resolved if onMouseOverProduct has not been re-called
     const productDetails = await resolver(result.json());
     onResult(productDetails);    
 }
 ```
 
-#### onCancel: 
+#### Proceed while
 ```
-import {createResolveLatest} from 'procedural-cancellable'
+import createResolveLatest from 'resolve-latest'
+import {getActiveScene}  from './App'
+
+const resolvePremiums = createResolveLatest();
+
+// if proceedWhile initially returns false, it will not executed any further and it will not canceled the previous task
+async function onMouseOverProduct(productId, onResult){
+    const {resolver} = await resolvePremiums({proceedWhile: () => getActiveScene() === 'productList'})
+    // if proceedWhile returns false at any point, the following next lines will not get executed
+    const result = await resolver(Api.get(`/products/info/${productId}`));
+    // gets resolved if 'proceedWhile' still return true, and no other calls have passed the proceedWhile until now 
+    const productDetails = await resolver(result.json()); // same here
+    onResult(productDetails);    
+}
+```
+
+#### Resolve latest BY
+```
+import createResolveLatest from 'resolve-latest'
+
+const resolveDistinctFirst = createResolveLatest({by: ['row','column'], gcTimeout: 5000); // gcTimeout default value is 6000(ms)
+
+/*gcTimeouts defines the duration for how long one ['row','column'] resolver will be remembered until it is deleted from memory
+If the resolver is re-used before gcTimeout runs out, the counter will be reset*/
+
+// if function is sequentially called with same row and column the previous ['row', 'column'] tasks will get cancelled
+async function onUpdateGrid(row, column,  value, updateColumnErrorStatus){
+    const {resolver} = await resolveDistinctFirst({target: {row, column}, debounce: 450}); 
+    // target must be spesified and it must be an object that has both 'row' and 'column' spesified
+    const result = await resolver(Api.put(`/products/${row}`, {column, value));
+    const errors = await resolver(result.json());
+    onColumnValidateErrors(errors);
+}
+```
+
+#### On cancel: 
+```
+import createResolveLatest from 'resolve-latest'
 
 const debounceGetDetails = createResolveLatest();
 
@@ -27,8 +68,8 @@ const debounceGetDetails = createResolveLatest();
 async function onMouseOverProduct(productId, onResult){
     const {resolver} = await debounceGetDetails({
         debounce: 250, 
-        onCancel: () => console.log('cancel fetching product'
-    )}) 
+        onCancel: () => console.log('cancel fetching product')
+    }) 
     // same as previous but console.logs when cancelled 
     const result = await resolver(Api.get('/products/' + productId));
     // gets resolved if onMouseOverProduct has not been recalled
@@ -37,56 +78,23 @@ async function onMouseOverProduct(productId, onResult){
 }
 ```
 
-#### distinct first
+#### Combined
 ```
-import {createResolveLatest} from 'procedural-cancellable'
-
-const resolveDistinctFirst = createResolveLatest();
-
-// if function is sequentially called with same productId, then only the first one is resolved
-async function onMouseOverProduct(productId, onResult){
-    const {resolver} = await resolveDistinctFirst({distinctBy: [productId]}) 
-    // distinctBy expect that it is called with same length array every time
-    const result = await resolver(Api.get('/products/' + productId));
-    // gets resolved if no calls with other productId has been made
-    const productDetails = resolver(result.json()); // same here
-    onResult(productDetails);    
-}
-```
-#### filter
-```
-import {createResolveLatest} from 'procedural-cancellable'
+import createResolveLatest from 'resolve-latest'
 import {getActiveScene}  from './Scenes'
 
-const resolvePremiums = createResolveLatest();
-
-// if filter returns false initially or later, the following lines will not get executed
-async function onMouseOverProduct(productId, onResult){
-    const {resolver} = await resolvePremiums({filter: () => getActiveScene() === 'productList'})
-    const result = await resolver(Api.get('/products/' + productId));
-    // gets resolved if 'filter' still return true, and no other calls have passed the filter until now 
-    const productDetails = await resolver(result.json());
-    onResult(productDetails);    
-}
-```
-
-#### combined
-```
-import {createResolveLatest} from 'procedural-cancellable'
-import {getActiveScene}  from './Scenes'
-
-const resolveProductsAdvanced = createResolveLatest();
+const resolveProductsAdvanced = createResolveLatest({by: ['productId']});
 
 // just an example of how to combine different options
 async function onMouseOverProduct(productId, onResult){
     const {resolver} = await resolveProductsAdvanced({
-        filter: () => getActiveScene() === 'productList',
-        distinctBy: [productId],
+        proceedWhile: () => getActiveScene() === 'productList',
+        target: {productId},
         debounce: 250,
         onCancel: () => console.log('canceled')
     })
     try{
-        const result = await resolver(Api.get('/products/' + productId));
+        const result = await resolver(Api.get(`/products/${productId}`));
         const productDetails = await resolver(result.json());
         onResult(productDetails);
     catch(fetchError){
@@ -95,9 +103,9 @@ async function onMouseOverProduct(productId, onResult){
 }
 ```
 
-#### additional function (wait, cancelled, resolver)
+#### Additional function (wait, cancelled, resolver)
 ```
-import {createResolveLatest} from 'procedural-cancellable'
+import createResolveLatest from 'resolve-latest'
 import {getActiveScene}  from './Scenes'
 
 const resolveSomething  = createResolveLatest();
@@ -109,5 +117,3 @@ async function onMouseOverProduct(productId, onResult){
     
 }
 ```
-
-

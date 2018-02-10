@@ -1,9 +1,10 @@
 {
-  "presets": [
+  "presets": ["minify",
     ["env", {
       "targets": {
         "browsers": ["last 2 versions", "safari >= 7"]
       }
-    }]
+    }],
+    "es2016", "stage-2"
   ]
 }

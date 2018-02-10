@@ -1,6 +1,7 @@
 module.exports = function (wallaby) {
     return {
         files: [
+            'dist/**/*.js',
             'src/**/*.js',
             'package.json', // <--
         ],
@@ -12,6 +13,7 @@ module.exports = function (wallaby) {
         testFramework: 'jest',
         compilers: {
             'src/**/*.js': wallaby.compilers.babel(),
+            'dist/**/*.js': wallaby.compilers.babel(),
         }
     };
 };
